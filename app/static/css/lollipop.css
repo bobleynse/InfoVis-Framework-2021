@@ -1,0 +1,10 @@
+
+.lollipop {
+	fill: steelblue;
+	cursor: crosshair;
+}
+
+.lollipop:hover {
+	fill: DarkOrange;
+	cursor: crosshair;
+}
