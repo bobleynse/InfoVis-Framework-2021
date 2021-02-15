@@ -46,8 +46,11 @@
 					.attr("width", width);
 
 	// Declare the axis of the plot, !!padding!! for circle to be in horizontal center
-	var x = d3.scaleLinear().range([0, chart_width]).domain([0, 100]);
-	var	y = d3.scaleBand().range([0, chart_height]).padding(1).domain(x_variables);
+	var x = d3.scaleLinear().range([0, chart_width]);
+	var	y = d3.scaleBand().range([0, chart_height]).padding(1);
+
+	x.domain([0, 100])
+	y.domain(x_variables);
 
 	updatePlot();
 </script>
