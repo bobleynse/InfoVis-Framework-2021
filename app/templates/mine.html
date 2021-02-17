@@ -18,20 +18,20 @@
 </select>
 
 <!-- Create a div where the graph will take place -->
-<div id="my_dataviz"></div>
+<div id="my_chart"></div>
 
 <script>
+	// Load the possible areas
 	var x_variables = {{ x_variables |safe}};
 	var selected_area = {{ selected_area_name |tojson }};
-	
 
-	// set the dimensions and margins of the graph
-	var margin = {top: 30, right: 30, bottom: 70, left: 60},
+	// Set the dimensions and margins of the graph
+	var margin = {top: 30, right: 30, bottom: 120, left: 60},
 		width = 460 - margin.left - margin.right,
 		height = 400 - margin.top - margin.bottom;
 	
-	// append the svg object to the body of the page
-	var svg = d3.select("#my_dataviz")
+	// Append the svg object to the body of the page
+	var svg = d3.select("#my_chart")
 		.append("svg")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
@@ -54,12 +54,11 @@
 	// A function that create / update the plot for a given variable:
 	function update(selectedVar) {
 
-		// selected_area = selectedVar;
 		selected_area = selectedVar.value;
 
 		var fetch_url = "/d3_plot_data?area_name=" + selected_area;
 
-		console.log(fetch_url)
+		console.log(selectedVar)
 
 		fetch(fetch_url)
 			.then(function(response) { return response.json(); })
@@ -67,17 +66,20 @@
 				plot_data = data;
 			var map = d3.map(plot_data[0]); 
 		
-			console.log(map)
-
-			// X axis
+			// update X axis
 			x.domain(x_variables)
 			xAxis.transition().duration(1000).call(d3.axisBottom(x))
+				// Rotate the x labels
+				.selectAll("text")
+					.attr("transform", "rotate(45)")
+					.attr('dx', '4.5em')
+					.attr('dy', '1em');
 		
-			// Add Y axis
+			// update Y axis
 			y.domain([0, 100]);
 			yAxis.transition().duration(1000).call(d3.axisLeft(y));
 		
-			// variable u: map data to existing circle
+			// variable l: map data to existing line
 			var l = svg.selectAll(".myLine")
 				.data(map.entries())
 			// update lines
@@ -108,11 +110,11 @@
 					.attr("cy", function(d) { return y(d.value); })
 					.attr("r", 8)
 					.attr("fill", "#69b3a2");
-	  })
+		})
 	}
 	
 	// Initialize plot
-	update('this')
+	update("Slotervaart")
 	
 </script>
 
