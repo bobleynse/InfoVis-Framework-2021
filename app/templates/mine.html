@@ -6,12 +6,12 @@
 	d3.select("#nav-link-mine").classed("active", true);
 </script>
 
-<link href="../static/css/tooltip.css" rel="stylesheet" type="text/css">
+<!-- <link href="../static/css/tooltip.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="../static/js/tooltip.js"></script>
 
 <H2 class="mt-3">Amsterdam Rental Information</H2>
 
-<!-- <form action="/d3"> -->
+<form action="/d3">
 <select name="area_name" onchange="updateArea(this)">
 	{% for area_name in area_names %}
 	{% if area_name == selected_area_name %}
@@ -23,7 +23,7 @@
 </select>
 
 
-<div class="mt-3" id="lollipop">
+<div class="mt-3" id="lollipopchart">
 </div>
 <link rel="stylesheet" type="text/css" href="../static/css/lollipop.css">
 <script type="text/javascript" src="../static/js/lollipop.js"></script>
@@ -41,7 +41,7 @@
 	var chart_height = 400,
 		chart_width = 700;
 
-	var svgContainer = d3.select("#lollipop").append("svg")
+	var svgContainer = d3.select("#lollipopchart").append("svg")
 					.attr("height", height)
 					.attr("width", width);
 
@@ -53,6 +53,127 @@
 	y.domain(x_variables);
 
 	updatePlot();
-</script>
+</script> -->
+
+<!-- NEEEEEW -->
+
+<!-- Add 2 buttons -->
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<button onclick="update('Slotervaart')">Variable 1</button>
+<button onclick="update('Centrum-West')">Variable 2</button>
+
+<form action="/d3">
+<select name="area_name" onchange="update(this)">
+	{% for area_name in area_names %}
+	{% if area_name == selected_area_name %}
+	<option selected value="{{ area_name }}">{{ area_name }}</option> 
+	{% else %} 
+	<option value="{{ area_name }}">{{ area_name }}</option> 
+	{% endif %}
+	{% endfor %}
+</select>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<script>
+	var x_variables = {{ x_variables |safe}};
+	var selected_area = {{ selected_area_name |tojson }};
+
+	// set the dimensions and margins of the graph
+	var margin = {top: 30, right: 30, bottom: 70, left: 60},
+		width = 460 - margin.left - margin.right,
+		height = 400 - margin.top - margin.bottom;
+	
+	// append the svg ob	ject to the body of the page
+	var svg = d3.select("#my_dataviz")
+	  .append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+		.attr("transform",
+			  "translate(" + margin.left + "," + margin.top + ")");
+	
+	// Initialize the X axis
+	var x = d3.scaleBand()
+	  .range([ 0, width ])
+	  .padding(1);
+	var xAxis = svg.append("g")
+	  .attr("transform", "translate(0," + height + ")")
+	
+	// Initialize the Y axis
+	var y = d3.scaleLinear()
+	  .range([ height, 0]);
+	var yAxis = svg.append("g")
+	  .attr("class", "myYaxis")
+	
+	
+	// A function that create / update the plot for a given variable:
+	function update(selectedVar) {
+
+		selected_area = selectedVar;
+
+		var fetch_url = "/d3_plot_data?area_name=" + selected_area;
+
+		console.log(fetch_url)
+
+		fetch(fetch_url)
+			.then(function(response) { return response.json(); })
+			.then((data) => {
+				plot_data = data;
+			var map = d3.map(plot_data[0]); 
+		
+			console.log(map)
+			
+
+			// X axis
+			x.domain(x_variables)
+			xAxis.transition().duration(1000).call(d3.axisBottom(x))
+		
+			// Add Y axis
+			y.domain([0, 100]);
+			yAxis.transition().duration(1000).call(d3.axisLeft(y));
+		
+			// // variable u: map data to existing circle
+			// var l = svg.selectAll(".myLine")
+			// .data(data)
+			// // update lines
+			// l
+			// .enter()
+			// .append("line")
+			// .attr("class", "myLine")
+			// .merge(l)
+			// .transition()
+			// .duration(1000)
+			// 	.attr("x1", function(d) { console.log(x(d.key)) ; return x(d.key); })
+			// 	.attr("x2", function(d) { return x(d.key); })
+			// 	.attr("y1", y(0))
+			// 	.attr("y2", function(d) { return y(d.val); })
+			// 	.attr("stroke", "grey")
+		
+		
+			// variable u: map data to existing circle
+			var u = svg.selectAll("circle")
+				.data(map.entries())
+			// update bars
+			u
+				.enter()
+				.append("circle")
+				.merge(u)
+				.transition()
+				.duration(1000)
+					.attr("cx", function(d) { return x(d.key); })
+					.attr("cy", function(d) { return y(d.value); })
+					.attr("r", 8)
+					.attr("fill", "#69b3a2");
+	  })
+	}
+	
+	// Initialize plot
+	update('Sloterdijk')
+	
+	</script>
 
 {% endblock %}
