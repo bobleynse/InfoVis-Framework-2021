@@ -26,9 +26,9 @@
 	var selected_area = {{ selected_area_name |tojson }};
 
 	// Set the dimensions and margins of the graph
-	var margin = {top: 30, right: 30, bottom: 120, left: 60},
-		width = 460 - margin.left - margin.right,
-		height = 400 - margin.top - margin.bottom;
+	var margin = {top: 100, right: 30, bottom: 120, left: 60},
+		width = 800 - margin.left - margin.right,
+		height = 600 - margin.top - margin.bottom;
 	
 	// Append the svg object to the body of the page
 	var svg = d3.select("#my_chart")
@@ -110,11 +110,53 @@
 					.attr("cy", function(d) { return y(d.value); })
 					.attr("r", 8)
 					.attr("fill", "#69b3a2");
-		})
-	}
+
+			// Add text label for the y axis
+			svg.select("#y-label")
+				.remove();
+			svg.append("text")   
+				.attr("id", "y-label")          
+				.attr("transform",
+					"translate(" + -35 + " ," + (height / 2) + ") rotate(-90)")
+				.style("text-anchor", "middle")
+				.style("font-size", "13px")
+				.text("Percentage");
+
+			// Add text label for the title
+			svg.select("#chart-title")
+				.remove();
+			svg.append("text")
+				.attr("class", "title")
+				.attr("id", "chart-title")
+				.attr("y", -25)
+				.attr("x", width / 2)
+				.style("font-weight", "bold")               
+				.style("text-anchor", "middle")
+				.text("Rental statistics of " + selected_area);					
+			})
+
+			.on("mousemove", function(d, i) {
+				var x_var = d.key;
+				var value = d.value;
+				var info = get_info_on_var(x_var);
+				var label = info[0]
+				var definition = info[1];
+
+				displayTooltip("<b>Variable: </b>" + label + "<br /><b>Percentage: </b>" + 
+					value + "%<br /><b>Explanation: </b>" + definition)
+
+				//d3.select(this).attr("fill", "DarkOrange");
+			})
+			.on("mouseout", function(d) {
+				hideTooltip();
+				//d3.select(this).attr("fill", "steelblue");
+			});
+		}
+
 	
 	// Initialize plot
 	update("Slotervaart")
+	
 	
 </script>
 
