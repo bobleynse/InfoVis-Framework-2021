@@ -6,64 +6,6 @@
 	d3.select("#nav-link-mine").classed("active", true);
 </script>
 
-<!-- <link href="../static/css/tooltip.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="../static/js/tooltip.js"></script>
-
-<H2 class="mt-3">Amsterdam Rental Information</H2>
-
-<form action="/d3">
-<select name="area_name" onchange="updateArea(this)">
-	{% for area_name in area_names %}
-	{% if area_name == selected_area_name %}
-	<option selected value="{{ area_name }}">{{ area_name }}</option> 
-	{% else %} 
-	<option value="{{ area_name }}">{{ area_name }}</option> 
-	{% endif %}
-	{% endfor %}
-</select>
-
-
-<div class="mt-3" id="lollipopchart">
-</div>
-<link rel="stylesheet" type="text/css" href="../static/css/lollipop.css">
-<script type="text/javascript" src="../static/js/lollipop.js"></script>
-<script type="text/javascript">
-	///////////// GLOBAL VARS /////////////		
-	var plot_data;
-	var meta_data = {{ meta_data |safe }};
-	var x_variables = {{ x_variables |safe}};
-	var selected_area = {{ selected_area_name |tojson }};
-
-	var width = 1000;
-	var height = 700;
-	var MOUSEOVER = false;
-
-	var chart_height = 400,
-		chart_width = 700;
-
-	var svgContainer = d3.select("#lollipopchart").append("svg")
-					.attr("height", height)
-					.attr("width", width);
-
-	// Declare the axis of the plot, !!padding!! for circle to be in horizontal center
-	var x = d3.scaleLinear().range([0, chart_width]);
-	var	y = d3.scaleBand().range([0, chart_height]).padding(1);
-
-	x.domain([0, 100])
-	y.domain(x_variables);
-
-	updatePlot();
-</script> -->
-
-<!-- NEEEEEW -->
-
-<!-- Add 2 buttons -->
-<!-- Load d3.js -->
-<script src="https://d3js.org/d3.v4.js"></script>
-
-<button onclick="update('Slotervaart')">Variable 1</button>
-<button onclick="update('Centrum-West')">Variable 2</button>
-
 <form action="/d3">
 <select name="area_name" onchange="update(this)">
 	{% for area_name in area_names %}
@@ -81,39 +23,39 @@
 <script>
 	var x_variables = {{ x_variables |safe}};
 	var selected_area = {{ selected_area_name |tojson }};
+	
 
 	// set the dimensions and margins of the graph
 	var margin = {top: 30, right: 30, bottom: 70, left: 60},
 		width = 460 - margin.left - margin.right,
 		height = 400 - margin.top - margin.bottom;
 	
-	// append the svg ob	ject to the body of the page
+	// append the svg object to the body of the page
 	var svg = d3.select("#my_dataviz")
-	  .append("svg")
-		.attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom)
-	  .append("g")
-		.attr("transform",
-			  "translate(" + margin.left + "," + margin.top + ")");
+		.append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	
 	// Initialize the X axis
 	var x = d3.scaleBand()
-	  .range([ 0, width ])
-	  .padding(1);
+		.range([ 0, width ])
+		.padding(1);
 	var xAxis = svg.append("g")
-	  .attr("transform", "translate(0," + height + ")")
-	
+		.attr("transform", "translate(0," + height + ")")
+
 	// Initialize the Y axis
 	var y = d3.scaleLinear()
-	  .range([ height, 0]);
+		.range([ height, 0]);
 	var yAxis = svg.append("g")
-	  .attr("class", "myYaxis")
-	
+		.attr("class", "myYaxis")
 	
 	// A function that create / update the plot for a given variable:
 	function update(selectedVar) {
 
-		selected_area = selectedVar;
+		// selected_area = selectedVar;
+		selected_area = selectedVar.value;
 
 		var fetch_url = "/d3_plot_data?area_name=" + selected_area;
 
@@ -126,7 +68,6 @@
 			var map = d3.map(plot_data[0]); 
 		
 			console.log(map)
-			
 
 			// X axis
 			x.domain(x_variables)
@@ -136,24 +77,23 @@
 			y.domain([0, 100]);
 			yAxis.transition().duration(1000).call(d3.axisLeft(y));
 		
-			// // variable u: map data to existing circle
-			// var l = svg.selectAll(".myLine")
-			// .data(data)
-			// // update lines
-			// l
-			// .enter()
-			// .append("line")
-			// .attr("class", "myLine")
-			// .merge(l)
-			// .transition()
-			// .duration(1000)
-			// 	.attr("x1", function(d) { console.log(x(d.key)) ; return x(d.key); })
-			// 	.attr("x2", function(d) { return x(d.key); })
-			// 	.attr("y1", y(0))
-			// 	.attr("y2", function(d) { return y(d.val); })
-			// 	.attr("stroke", "grey")
-		
-		
+			// variable u: map data to existing circle
+			var l = svg.selectAll(".myLine")
+				.data(map.entries())
+			// update lines
+			l
+				.enter()
+				.append("line")
+				.attr("class", "myLine")
+				.merge(l)
+				.transition()
+				.duration(1000)
+					.attr("x1", function(d) { console.log(x(d.key)) ; return x(d.key); })
+					.attr("x2", function(d) { return x(d.key); })
+					.attr("y1", y(0))
+					.attr("y2", function(d) { return y(d.value); })
+					.attr("stroke", "grey")
+			
 			// variable u: map data to existing circle
 			var u = svg.selectAll("circle")
 				.data(map.entries())
@@ -172,8 +112,8 @@
 	}
 	
 	// Initialize plot
-	update('Sloterdijk')
+	update('this')
 	
-	</script>
+</script>
 
 {% endblock %}
